@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title id="page-title">Nivelamento Vôlei</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.2s ease-in-out; }
+        .slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        ::-webkit-scrollbar { height: 6px; width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    </style>
+</head>
+<body id="body-theme" class="bg-gray-900 text-gray-100 min-h-screen font-sans selection:bg-blue-500 selection:text-white transition-colors duration-300">
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen flex flex-col items-center justify-center min-h-screen p-4 fade-in">
+        <div id="login-card" class="bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-sm border border-gray-700 text-center transition-colors">
+            <div id="login-icon" class="w-16 h-16 bg-blue-500/20 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <h1 id="login-title" class="text-2xl font-bold text-white mb-2">Nivelamento Vôlei</h1>
+            <p class="text-gray-400 text-sm mb-6">Insira sua senha numérica para votar</p>
+            
+            <input type="password" id="password-input" placeholder="Sua Senha" class="w-full bg-gray-900/80 border border-gray-600 text-white rounded-xl px-4 py-3 text-center text-xl tracking-[0.25em] focus:outline-none focus:border-blue-500 transition-colors mb-4" inputmode="numeric">
+            
+            <button id="btn-login" disabled class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl transition-colors duration-200">
+                Conectando...
+            </button>
+        </div>
+    </div>
+
+    <!-- Voting Screen -->
+    <div id="voting-screen" class="screen hidden max-w-lg mx-auto p-4 pb-24 fade-in">
+        <header class="text-center mb-6 pt-4 relative">
+            <button onclick="logout()" class="absolute right-0 top-4 text-sm text-red-400 hover:text-red-300 font-medium">Sair</button>
+            <h1 id="voting-header-title" class="text-2xl font-bold text-white mb-1">Votação</h1>
+            <p class="text-sm text-gray-400">Logado como: <span id="current-user-name" class="font-bold text-blue-400">...</span></p>
+        </header>
+
+        <div id="voting-card-bg" class="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-300">Progresso</span>
+                <span id="progress-text" class="text-sm font-bold text-blue-400">0/12</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2.5">
+                <div id="progress-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <section class="mb-8">
+            <h2 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Disponíveis</h2>
+            <div id="pool-available" class="flex flex-wrap gap-2 min-h-[60px] p-3 bg-gray-800/40 rounded-xl border-2 border-dashed border-gray-600"></div>
+        </section>
+
+        <!-- Dynamic Category Pools -->
+        <div id="categories-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Gerado via JS de acordo com o grupo -->
+        </div>
+
+        <div class="fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur border-t border-gray-700 p-4 shadow-lg z-10">
+            <div class="max-w-md mx-auto">
+                <button id="submitBtn" disabled class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+                    Enviar Votos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Screen -->
+    <div id="admin-screen" class="screen hidden max-w-xl mx-auto p-4 fade-in pb-12">
+        <header class="flex justify-between items-center mb-6 pt-4 border-b border-gray-700 pb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-white">Painel Admin</h1>
+                <p class="text-sm text-gray-400" id="admin-vote-count">Carregando...</p>
+            </div>
+            <button onclick="logout()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Sair</button>
+        </header>
+
+        <!-- Configuração de Pontuação -->
+        <h2 class="text-lg font-bold text-gray-300 mb-3">Configurar Pontuação por Categoria</h2>
+        <div id="admin-points-config" class="bg-gray-800 rounded-xl border border-gray-700 p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Preenchido via JS -->
+        </div>
+
+        <h2 class="text-lg font-bold text-gray-300 mb-3">Ranking Final</h2>
+        <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden mb-8" id="admin-results">
+            <div class="p-8 text-center text-gray-400">Calculando resultados...</div>
+        </div>
+
+        <h2 class="text-lg font-bold text-gray-300 mb-3">Gerenciar Participantes</h2>
+        <div class="bg-gray-800 rounded-xl border border-gray-700 p-4 mb-8">
+            <div id="admin-players-list" class="flex flex-col gap-2 mb-4 max-h-[350px] overflow-y-auto pr-2"></div>
+            <div class="flex gap-2 pt-4 border-t border-gray-700">
+                <input type="text" id="new-player-name" placeholder="Nome do participante..." class="flex-1 bg-gray-900 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                <button onclick="addPlayer()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors">Adicionar</button>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-700">
+            <button onclick="resetDatabase()" id="btn-reset" class="w-full bg-red-900/80 hover:bg-red-700 text-red-100 font-bold py-3 px-4 rounded-xl border border-red-700 transition-colors">
+                ⚠️ Zerar Todos os Votos (Reset)
+            </button>
+        </div>
+    </div>
+
+    <!-- Success Screen -->
+    <div id="success-screen" class="screen hidden min-h-screen flex items-center justify-center px-4 fade-in">
+        <div class="bg-gray-800 border border-gray-700 p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl">
+            <div class="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2">Votação Registrada!</h2>
+            <p class="text-gray-400 mb-6">Obrigado por ajudar no nivelamento. Você já pode fechar esta página.</p>
+            <button onclick="logout()" class="text-blue-400 font-medium hover:text-blue-300 underline">Voltar ao início</button>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="actionModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-end justify-center fade-in">
+        <div class="bg-gray-800 w-full max-w-md rounded-t-2xl slide-up overflow-hidden border-t border-x border-gray-700">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800/80 backdrop-blur">
+                <h3 id="modalTitle" class="text-lg font-bold text-white">Mover</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white p-1 rounded-full hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-4 flex flex-col gap-3 max-h-[60vh] overflow-y-auto" id="modalOptions"></div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center px-4 fade-in">
+        <div class="bg-gray-800 border border-gray-700 p-6 rounded-2xl max-w-sm w-full text-center">
+            <h3 class="text-xl font-bold text-red-500 mb-2">Aviso</h3>
+            <p id="error-msg" class="text-gray-300 mb-6"></p>
+            <button onclick="closeError()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-xl">OK</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0a4Bk8OndhRdjjPHdkPMqaYXCxrFTSSo",
+            authDomain: "vote-f2924.firebaseapp.com",
+            projectId: "vote-f2924",
+            storageBucket: "vote-f2924.firebasestorage.app",
+            messagingSenderId: "850148429914",
+            appId: "1:850148429914:web:6594170f61a0d8a21e4863",
+            measurementId: "G-J9Y44RTM0D"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const ADMIN_PASS = "18273645";
+
+        // Detecção do Grupo pela URL (?grupo=domingo ou /tema-rosa)
+        const urlParams = new URLSearchParams(window.location.search);
+        const path = window.location.pathname;
+        let grupoParam = urlParams.get('grupo');
+        if (!grupoParam) {
+            if (path.includes('tema-rosa') || path.includes('domingo')) grupoParam = 'domingo';
+            else grupoParam = 'sextou';
+        }
+
+        // Definição dos Grupos
+        const GROUPS = {
+            sextou: {
+                name: "Vôlei Sextou",
+                colUsers: "volleyball_users",
+                colVotes: "volleyball_votes",
+                colConfig: "volleyball_config",
+                categories: {
+                    iniciante: { name: "Iniciante", defaultPoints: 2, requiredCount: 3, colorClass: "green" },
+                    amador: { name: "Amador", defaultPoints: 4, requiredCount: 3, colorClass: "blue" },
+                    intermediario: { name: "Intermediário", defaultPoints: 7, requiredCount: 3, colorClass: "yellow" },
+                    avancado: { name: "Avançado", defaultPoints: 10, requiredCount: 3, colorClass: "red" }
+                },
+                initialPlayers: [
+                    { name: "Camyla", pass: "147258" }, { name: "Dani", pass: "258369" },
+                    { name: "Matheus", pass: "369147" }, { name: "Gabriel", pass: "789456" },
+                    { name: "Gabbe", pass: "456123" }, { name: "Júlio", pass: "321654" },
+                    { name: "Júlia", pass: "987321" }, { name: "Yaena", pass: "654987" },
+                    { name: "Raissa", pass: "159753" }, { name: "Octavio", pass: "357159" },
+                    { name: "Dionnys", pass: "753951" }, { name: "Guilherme", pass: "852456" }
+                ],
+                theme: {
+                    body: "bg-gray-900 text-gray-100",
+                    card: "bg-gray-800 border-gray-700",
+                    primary: "bg-blue-600 hover:bg-blue-500",
+                    accent: "text-blue-400",
+                    iconBg: "bg-blue-500/20 text-blue-500"
+                }
+            },
+            domingo: {
+                name: "Domingo na Quadra",
+                colUsers: "domingo_users",
+                colVotes: "domingo_votes",
+                colConfig: "domingo_config",
+                categories: {
+                    construcao: { name: "Fundamentos em construção", defaultPoints: 1, requiredCount: 6, colorClass: "blue" },
+                    consistentes: { name: "Fundamentos consistentes", defaultPoints: 2, requiredCount: 6, colorClass: "yellow" },
+                    avancados: { name: "Fundamentos avançados", defaultPoints: 4, requiredCount: 6, colorClass: "red" }
+                },
+                initialPlayers: [
+                    { name: "Ana", pass: "111111" }, { name: "Beatriz", pass: "222222" },
+                    { name: "Carla", pass: "333333" }, { name: "Débora", pass: "444444" },
+                    { name: "Elisa", pass: "555555" }, { name: "Fernanda", pass: "666666" },
+                    { name: "Gabriela", pass: "777777" }, { name: "Helena", pass: "888888" },
+                    { name: "Isabel", pass: "999999" }, { name: "Juliana", pass: "121212" },
+                    { name: "Larissa", pass: "232323" }, { name: "Mariana", pass: "343434" },
+                    { name: "Natália", pass: "454545" }, { name: "Patrícia", pass: "565656" },
+                    { name: "Rafaela", pass: "676767" }, { name: "Sabrina", pass: "787878" },
+                    { name: "Tatiane", pass: "898989" }, { name: "Vanessa", pass: "909090" }
+                ],
+                theme: {
+                    body: "bg-pink-950 text-pink-50 selection:bg-pink-500 selection:text-white",
+                    card: "bg-pink-900/40 border-pink-800/60",
+                    primary: "bg-pink-600 hover:bg-pink-500",
+                    accent: "text-pink-300",
+                    iconBg: "bg-pink-500/20 text-pink-400"
+                }
+            }
+        };
+
+        const activeGroup = GROUPS[grupoParam] || GROUPS.sextou;
+        applyThemeAndConfig();
+
+        function applyThemeAndConfig() {
+            document.getElementById('page-title').textContent = `Nivelamento - ${activeGroup.name}`;
+            document.getElementById('login-title').textContent = activeGroup.name;
+            document.getElementById('voting-header-title').textContent = `Votação (${activeGroup.name})`;
+            
+            // Aplicar Classes de Tema
+            const body = document.getElementById('body-theme');
+            body.className = `${activeGroup.theme.body} min-h-screen font-sans transition-colors duration-300`;
+            
+            document.getElementById('login-card').className = `${activeGroup.theme.card} p-8 rounded-2xl shadow-xl w-full max-w-sm border text-center transition-colors`;
+            document.getElementById('login-icon').className = `w-16 h-16 ${activeGroup.theme.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`;
+            
+            const btnLogin = document.getElementById('btn-login');
+            btnLogin.className = `w-full ${activeGroup.theme.primary} disabled:bg-gray-700 disabled:text-gray-400 text-white font-bold py-3 px-4 rounded-xl transition-colors duration-200`;
+            
+            document.getElementById('voting-card-bg').className = `${activeGroup.theme.card} rounded-xl p-4 border mb-6`;
+            document.getElementById('submitBtn').className = `w-full ${activeGroup.theme.primary} disabled:bg-gray-700 disabled:text-gray-500 text-white font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2`;
+
+            // Construir HTML dinâmico das categorias de votação
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+            
+            const colorMap = {
+                green: { bg: 'bg-green-900/40', text: 'text-green-400', badge: 'bg-green-900 text-green-300' },
+                blue: { bg: 'bg-blue-900/40', text: 'text-blue-400', badge: 'bg-blue-900 text-blue-300' },
+                yellow: { bg: 'bg-yellow-900/40', text: 'text-yellow-400', badge: 'bg-yellow-900 text-yellow-300' },
+                red: { bg: 'bg-red-900/40', text: 'text-red-400', badge: 'bg-red-900 text-red-300' }
+            };
+
+            Object.keys(activeGroup.categories).forEach(key => {
+                const cat = activeGroup.categories[key];
+                const col = colorMap[cat.colorClass] || colorMap.blue;
+                
+                container.innerHTML += `
+                <div class="${activeGroup.theme.card} rounded-xl border flex flex-col overflow-hidden">
+                    <div class="${col.bg} px-3 py-2 border-b border-gray-700/50 flex justify-between items-center">
+                        <h3 class="font-semibold ${col.text}">${cat.name}</h3>
+                        <span id="count-${key}" class="text-xs font-bold ${col.badge} px-2 py-1 rounded-full">0/${cat.requiredCount}</span>
+                    </div>
+                    <div id="pool-${key}" class="p-3 flex-1 flex flex-col gap-2 min-h-[100px]"></div>
+                </div>`;
+            });
+        }
+
+        let PLAYERS_LIST = [];
+        let currentUserDocId = null;
+        let currentUserName = null;
+        let playerAssignments = {};
+
+        // Inicialização
+        async function initApp() {
+            try {
+                const usersRef = collection(db, activeGroup.colUsers);
+                const snap = await getDocs(usersRef);
+                
+                if (snap.empty) {
+                    console.log("Banco vazio para o grupo, populando padrão...");
+                    for (const p of activeGroup.initialPlayers) {
+                        await setDoc(doc(db, activeGroup.colUsers, p.name), { name: p.name, password: p.pass, voted: false });
+                    }
+                }
+
+                const btn = document.getElementById('btn-login');
+                btn.disabled = false;
+                btn.textContent = "Entrar";
+                btn.onclick = handleLogin;
+            } catch (e) {
+                showError("Erro de conexão com o banco de dados.");
+            }
+        }
+        initApp();
+
+        // Login
+        async function handleLogin() {
+            const pass = document.getElementById('password-input').value;
+            if(!pass) return;
+
+            const btn = document.getElementById('btn-login');
+            btn.disabled = true; btn.textContent = "Verificando...";
+
+            if (pass === ADMIN_PASS) {
+                showScreen('admin-screen');
+                loadAdminData();
+                btn.disabled = false; btn.textContent = "Entrar";
+                document.getElementById('password-input').value = "";
+                return;
+            }
+
+            try {
+                const usersRef = collection(db, activeGroup.colUsers);
+                const snap = await getDocs(usersRef);
+                let foundUser = null;
+                
+                PLAYERS_LIST = [];
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    PLAYERS_LIST.push(data.name);
+                    if (data.password === pass) foundUser = { id: docSnap.id, ...data };
+                });
+                PLAYERS_LIST.sort();
+
+                if (foundUser) {
+                    if (foundUser.voted) {
+                        showError("Você já enviou seus votos! Não é possível votar novamente.");
+                    } else {
+                        currentUserDocId = foundUser.id;
+                        currentUserName = foundUser.name;
+                        document.getElementById('current-user-name').textContent = currentUserName;
+                        initVotingState();
+                        showScreen('voting-screen');
+                    }
+                } else {
+                    showError("Senha incorreta!");
+                }
+            } catch (e) {
+                showError("Erro ao verificar senha.");
+            }
+            btn.disabled = false; btn.textContent = "Entrar";
+            document.getElementById('password-input').value = "";
+        }
+
+        function initVotingState() {
+            playerAssignments = {};
+            PLAYERS_LIST.forEach(p => playerAssignments[p] = 'available');
+            renderVotingUI();
+        }
+
+        function renderVotingUI() {
+            document.getElementById('pool-available').innerHTML = '';
+            Object.keys(activeGroup.categories).forEach(catKey => {
+                const el = document.getElementById(`pool-${catKey}`);
+                if (el) el.innerHTML = '';
+            });
+
+            let distributedCount = 0;
+            let categoryCounts = {};
+            Object.keys(activeGroup.categories).forEach(k => categoryCounts[k] = 0);
+
+            PLAYERS_LIST.forEach(player => {
+                const catId = playerAssignments[player];
+                if (catId !== 'available') {
+                    distributedCount++;
+                    if (categoryCounts[catId] !== undefined) categoryCounts[catId]++;
+                }
+                
+                const btn = document.createElement('button');
+                btn.textContent = player;
+                btn.className = getPlayerStyle(catId);
+                btn.onclick = () => openActionModal(player);
+                
+                if (catId === 'available') {
+                    document.getElementById('pool-available').appendChild(btn);
+                } else {
+                    const poolEl = document.getElementById(`pool-${catId}`);
+                    if (poolEl) poolEl.appendChild(btn);
+                }
+            });
+
+            const totalPlayers = PLAYERS_LIST.length;
+            document.getElementById('progress-text').textContent = `${distributedCount}/${totalPlayers}`;
+            document.getElementById('progress-bar').style.width = `${(distributedCount / totalPlayers) * 100}%`;
+
+            let allValid = true;
+            Object.keys(activeGroup.categories).forEach(catKey => {
+                const count = categoryCounts[catKey];
+                const required = activeGroup.categories[catKey].requiredCount;
+                const badge = document.getElementById(`count-${catKey}`);
+                if (badge) {
+                    badge.textContent = `${count}/${required}`;
+                    if (count === required) badge.classList.add('ring-2', 'ring-white/50');
+                    else badge.classList.remove('ring-2', 'ring-white/50');
+                }
+                if (count !== required) allValid = false;
+            });
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = !allValid || distributedCount !== totalPlayers;
+            submitBtn.onclick = submitBtn.disabled ? null : submitVotesToFirebase;
+        }
+
+        function getPlayerStyle(catId) {
+            const base = "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border";
+            if (catId === 'available') return `${base} bg-gray-800 text-gray-200 border-gray-700 w-auto inline-block`;
+            return `${base} bg-gray-800/80 text-white border-gray-600 w-full flex items-center justify-between before:content-['≡'] before:mr-2 before:text-gray-400`;
+        }
+
+        window.openActionModal = (player) => {
+            const currentCat = playerAssignments[player];
+            document.getElementById('modalTitle').innerHTML = `Mover <span class="${activeGroup.theme.accent}">${player}</span>`;
+            const opts = document.getElementById('modalOptions');
+            opts.innerHTML = '';
+
+            let localCounts = {};
+            Object.keys(activeGroup.categories).forEach(k => localCounts[k] = 0);
+            PLAYERS_LIST.forEach(p => { 
+                const assigned = playerAssignments[p];
+                if (assigned !== 'available' && localCounts[assigned] !== undefined) localCounts[assigned]++; 
+            });
+
+            // Opção para Disponíveis
+            if (currentCat !== 'available') {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left px-4 py-3 rounded-xl border bg-gray-700 border-gray-600 text-white font-medium flex justify-between";
+                btn.innerHTML = `<span>Remover para Disponíveis</span>`;
+                btn.onclick = () => { playerAssignments[player] = 'available'; closeModal(); renderVotingUI(); };
+                opts.appendChild(btn);
+            }
+
+            Object.keys(activeGroup.categories).forEach(catKey => {
+                if (catKey === currentCat) return;
+                const cat = activeGroup.categories[catKey];
+                const isFull = localCounts[catKey] >= cat.requiredCount;
+                
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-4 py-3 rounded-xl border font-medium flex justify-between ${
+                    isFull ? 'bg-gray-800 border-gray-700 text-gray-500 opacity-60' : 'bg-gray-700 border-gray-600 text-white'
+                }`;
+                btn.innerHTML = `${cat.name} <span class="text-xs px-2 py-1 rounded bg-gray-800">${localCounts[catKey]}/${cat.requiredCount}</span>`;
+                btn.disabled = isFull;
+                if(!isFull) {
+                    btn.onclick = () => { playerAssignments[player] = catKey; closeModal(); renderVotingUI(); };
+                }
+                opts.appendChild(btn);
+            });
+            document.getElementById('actionModal').classList.remove('hidden');
+        };
+
+        window.closeModal = () => document.getElementById('actionModal').classList.add('hidden');
+
+        async function submitVotesToFirebase() {
+            if(!currentUserDocId) return;
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true; btn.textContent = "Salvando...";
+
+            const finalData = {};
+            Object.keys(activeGroup.categories).forEach(k => finalData[k] = []);
+            for (const [p, c] of Object.entries(playerAssignments)) { 
+                if(c !== 'available' && finalData[c]) finalData[c].push(p); 
+            }
+
+            try {
+                const votesRef = doc(db, activeGroup.colVotes, currentUserDocId);
+                await setDoc(votesRef, { voter: currentUserName, votes: finalData, timestamp: new Date().toISOString() });
+                
+                const userRef = doc(db, activeGroup.colUsers, currentUserDocId);
+                await updateDoc(userRef, { voted: true });
+                
+                showScreen('success-screen');
+            } catch (e) {
+                showError("Erro ao salvar votos. Verifique a conexão.");
+                btn.disabled = false; btn.textContent = "Enviar Votos";
+            }
+        }
+
+        // --- PAINEL ADMIN ---
+        async function loadAdminData() {
+            try {
+                const votesRef = collection(db, activeGroup.colVotes);
+                const usersRef = collection(db, activeGroup.colUsers);
+                const configRef = doc(db, activeGroup.colConfig, 'points');
+                
+                const [votesSnap, usersSnap, configSnap] = await Promise.all([
+                    getDocs(votesRef), 
+                    getDocs(usersRef), 
+                    getDoc(configRef)
+                ]);
+
+                // Obter pontuações customizadas ou padrão
+                let currentPoints = {};
+                const customPoints = configSnap.exists() ? configSnap.data() : {};
+                Object.keys(activeGroup.categories).forEach(k => {
+                    currentPoints[k] = customPoints[k] !== undefined ? customPoints[k] : activeGroup.categories[k].defaultPoints;
+                });
+
+                // Renderizar inputs de configuração de pontos
+                renderPointsConfigUI(currentPoints);
+                
+                let scores = {};
+                let currentPlayers = [];
+                usersSnap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    scores[data.name] = 0;
+                    currentPlayers.push(data);
+                });
+                
+                let totalVotes = 0;
+                votesSnap.forEach(docSnap => {
+                    const v = docSnap.data().votes;
+                    totalVotes++;
+                    Object.keys(activeGroup.categories).forEach(k => {
+                        if (v[k]) {
+                            v[k].forEach(n => {
+                                if (scores[n] !== undefined) scores[n] += currentPoints[k];
+                            });
+                        }
+                    });
+                });
+
+                document.getElementById('admin-vote-count').textContent = `${totalVotes} pessoas já votaram`;
+
+                // Ranking Dinâmico baseado nas faixas de quantidade exigidas
+                const ranked = Object.keys(scores).map(name => ({ name, score: scores[name] })).sort((a,b) => b.score - a.score);
+                
+                let cumulativeCount = 0;
+                const categoryRanges = [];
+                Object.keys(activeGroup.categories).forEach(k => {
+                    const cat = activeGroup.categories[k];
+                    categoryRanges.push({ key: k, name: cat.name, count: cat.requiredCount });
+                });
+
+                let resultsHtml = '';
+                ranked.forEach((p, index) => {
+                    let assignedCatName = "Reserva";
+                    let runningSum = 0;
+                    let foundColor = "text-gray-400";
+
+                    const colorsList = ["text-red-400", "text-yellow-400", "text-blue-400", "text-green-400", "text-purple-400"];
+                    let colorIndex = 0;
+
+                    for (const catRange of categoryRanges) {
+                        runningSum += catRange.count;
+                        if (index < runningSum) {
+                            assignedCatName = catRange.name;
+                            foundColor = colorsList[colorIndex % colorsList.length];
+                            break;
+                        }
+                        colorIndex++;
+                    }
+
+                    resultsHtml += `
+                    <div class="flex justify-between items-center p-3 bg-gray-800 border-b border-gray-700 last:border-0">
+                        <div class="flex items-center gap-3">
+                            <span class="text-gray-500 font-bold w-4">${index + 1}</span>
+                            <span class="font-semibold text-white">${p.name}</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-bold ${foundColor}">${assignedCatName}</span>
+                            <span class="bg-gray-700 text-gray-300 px-2 py-1 rounded text-sm w-16 text-center">${p.score} pts</span>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('admin-results').innerHTML = resultsHtml || '<div class="p-4 text-gray-400">Nenhum participante.</div>';
+
+                // Lista de Gerenciamento
+                currentPlayers.sort((a, b) => a.name.localeCompare(b.name));
+                let manageHtml = '';
+                currentPlayers.forEach(p => {
+                    manageHtml += `
+                    <div class="flex justify-between items-center bg-gray-700/60 p-3 rounded-lg border border-gray-600">
+                        <div>
+                            <div class="font-bold text-white flex items-center gap-2">
+                                ${p.name}
+                                ${p.voted ? '<span class="bg-green-600 text-white text-[10px] px-1.5 py-0.5 rounded uppercase">Votou</span>' : '<span class="bg-yellow-600 text-white text-[10px] px-1.5 py-0.5 rounded uppercase">Pendente</span>'}
+                            </div>
+                            <div class="text-sm text-gray-300 mt-1">Senha: <span class="font-mono text-blue-300 font-bold tracking-widest">${p.password}</span></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="resetPassword('${p.name}')" class="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors" title="Gerar nova senha">🔄</button>
+                            <button onclick="removePlayer('${p.name}')" class="p-2 bg-red-900/80 hover:bg-red-700 text-red-200 rounded transition-colors" title="Remover participante">🗑️</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('admin-players-list').innerHTML = manageHtml;
+
+            } catch(e) {
+                console.error(e);
+                document.getElementById('admin-results').innerHTML = '<div class="p-4 text-red-400">Erro ao carregar dados do admin.</div>';
+            }
+        }
+
+        function renderPointsConfigUI(currentPoints) {
+            const container = document.getElementById('admin-points-config');
+            container.innerHTML = '';
+            Object.keys(activeGroup.categories).forEach(k => {
+                const cat = activeGroup.categories[k];
+                container.innerHTML += `
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs text-gray-300 font-medium">${cat.name}</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="pts-${k}" value="${currentPoints[k]}" class="w-full bg-gray-900 border border-gray-600 text-white rounded-lg px-3 py-1.5 text-sm">
+                    </div>
+                </div>`;
+            });
+            container.innerHTML += `
+            <div class="sm:col-span-2 pt-2">
+                <button onclick="savePointsConfig()" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">Salvar Nova Pontuação</button>
+            </div>`;
+        }
+
+        window.savePointsConfig = async () => {
+            const newPoints = {};
+            Object.keys(activeGroup.categories).forEach(k => {
+                const val = parseInt(document.getElementById(`pts-${k}`).value);
+                newPoints[k] = isNaN(val) ? 1 : val;
+            });
+            try {
+                await setDoc(doc(db, activeGroup.colConfig, 'points'), newPoints);
+                alert("Pontuações atualizadas com sucesso!");
+                loadAdminData();
+            } catch(e) {
+                alert("Erro ao salvar pontuações.");
+            }
+        };
+
+        window.addPlayer = async () => {
+            const nameInput = document.getElementById('new-player-name');
+            const name = nameInput.value.trim();
+            if(!name) return;
+            const pass = Math.floor(100000 + Math.random() * 900000).toString();
+            try {
+                await setDoc(doc(db, activeGroup.colUsers, name), { name: name, password: pass, voted: false });
+                nameInput.value = '';
+                loadAdminData();
+            } catch(e) { alert("Erro ao adicionar participante."); }
+        };
+
+        window.removePlayer = async (name) => {
+            if(confirm(`Remover ${name} deste grupo?`)) {
+                try {
+                    await deleteDoc(doc(db, activeGroup.colUsers, name));
+                    loadAdminData();
+                } catch(e) { alert("Erro ao deletar."); }
+            }
+        };
+
+        window.resetPassword = async (name) => {
+            if(confirm(`Gerar nova senha para ${name}?`)) {
+                const pass = Math.floor(100000 + Math.random() * 900000).toString();
+                try {
+                    await updateDoc(doc(db, activeGroup.colUsers, name), { password: pass });
+                    loadAdminData();
+                } catch(e) { alert("Erro ao alterar senha."); }
+            }
+        };
+
+        window.resetDatabase = async () => {
+            const pass = prompt(`ATENÇÃO: Isso apagará TODOS os votos de ${activeGroup.name}!\n\nDigite a senha de administrador:`);
+            if (pass !== ADMIN_PASS) {
+                if (pass !== null) alert("Senha incorreta.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-reset');
+            btn.disabled = true; btn.textContent = "Apagando dados...";
+
+            try {
+                const votesRef = collection(db, activeGroup.colVotes);
+                const votesSnap = await getDocs(votesRef);
+                const deletePromises = [];
+                votesSnap.forEach(docSnap => { deletePromises.push(deleteDoc(doc(db, activeGroup.colVotes, docSnap.id))); });
+                await Promise.all(deletePromises);
+
+                const usersRef = collection(db, activeGroup.colUsers);
+                const usersSnap = await getDocs(usersRef);
+                const updatePromises = [];
+                usersSnap.forEach(docSnap => { updatePromises.push(updateDoc(doc(db, activeGroup.colUsers, docSnap.id), { voted: false })); });
+                await Promise.all(updatePromises);
+
+                alert("Sistema resetado com sucesso!");
+                loadAdminData();
+            } catch (e) { alert("Erro ao resetar."); }
+            btn.disabled = false; btn.textContent = "⚠️ Zerar Todos os Votos (Reset)";
+        };
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        window.showError = (msg) => {
+            document.getElementById('error-msg').textContent = msg;
+            document.getElementById('errorModal').classList.remove('hidden');
+        }
+        window.closeError = () => document.getElementById('errorModal').classList.add('hidden');
+        window.logout = () => { currentUserDocId = null; currentUserName = null; showScreen('login-screen'); }
+    </script>
+</body>
+</html>
