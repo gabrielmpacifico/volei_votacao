@@ -1,3 +1,24 @@
+Aqui está o código completo atualizado com todas as suas solicitações para o grupo **Domingo na Quadra**:
+
+1. **Nova Paleta de Cores Personalizada:**
+* Fundo geral: `#ffa3c4` (um tom de rosa vivo e acolhedor).
+* Tons e variações aplicados nos cards e categorias utilizando `#e78dae`, `#ce7798`, `#b66081` e `#9d4a6b`.
+* **Contraste e Legibilidade:** Todos os textos do grupo Domingo na Quadra foram ajustados para cores escuras de alta intensidade sobre os fundos rosados claros, garantindo legibilidade perfeita tanto no celular quanto no computador.
+
+
+2. **Botão de Sorteio de Times Equilibrados:**
+* Adicionado no painel Admin do grupo Domingo na Quadra (e também disponível no Sextou) um botão dedicado: **"🎲 Sortear Times Equilibrados"**.
+* **Como funciona o sorteio:** O algoritmo pega o ranking atual baseado nas pontuações, divide as jogadoras em blocos de nível (por exemplo, dividindo por 2 ou 3 times dependendo da quantidade de jogadoras) e distribui de forma alternada (método "serpentina") para que os times fiquem o mais equilibrados possível, misturando atletas de diferentes faixas de fundamento. O resultado é exibido em uma janela clara na tela.
+
+
+
+---
+
+### Código Completo (`index.html`)
+
+Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o deploy no Vercel:
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -12,7 +33,7 @@
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
     </style>
 </head>
 <body id="body-theme" class="bg-gray-900 text-gray-100 min-h-screen font-sans transition-colors duration-300">
@@ -26,7 +47,7 @@
                 </svg>
             </div>
             <h1 id="login-title" class="text-2xl font-bold text-white mb-2">Nivelamento Vôlei</h1>
-            <p class="text-gray-400 text-sm mb-6">Insira sua senha numérica para votar</p>
+            <p id="login-subtitle" class="text-gray-400 text-sm mb-6">Insira sua senha numérica para votar</p>
             
             <input type="password" id="password-input" placeholder="Sua Senha" class="w-full bg-gray-900/80 border border-gray-600 text-white rounded-xl px-4 py-3 text-center text-xl tracking-[0.25em] focus:outline-none focus:border-blue-500 transition-colors mb-4" inputmode="numeric">
             
@@ -39,32 +60,32 @@
     <!-- Voting Screen -->
     <div id="voting-screen" class="screen hidden max-w-lg mx-auto p-4 pb-24 fade-in">
         <header class="text-center mb-6 pt-4 relative">
-            <button onclick="logout()" class="absolute right-0 top-4 text-sm text-red-400 hover:text-red-300 font-medium">Sair</button>
-            <h1 id="voting-header-title" class="text-2xl font-bold text-white mb-1">Votação</h1>
-            <p class="text-sm text-gray-400">Logado como: <span id="current-user-name" class="font-bold text-blue-400">...</span></p>
+            <button onclick="logout()" id="logout-btn-vote" class="absolute right-0 top-4 text-sm font-medium">Sair</button>
+            <h1 id="voting-header-title" class="text-2xl font-bold mb-1">Votação</h1>
+            <p id="voting-subtitle" class="text-sm opacity-80">Logado como: <span id="current-user-name" class="font-bold">...</span></p>
         </header>
 
-        <div id="voting-card-bg" class="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-6">
+        <div id="voting-card-bg" class="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-6 shadow-sm">
             <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-300">Progresso</span>
-                <span id="progress-text" class="text-sm font-bold text-blue-400">0/12</span>
+                <span id="progress-label" class="text-sm font-medium">Progresso</span>
+                <span id="progress-text" class="text-sm font-bold">0/12</span>
             </div>
-            <div class="w-full bg-gray-700 rounded-full h-2.5">
+            <div class="w-full bg-black/20 rounded-full h-2.5">
                 <div id="progress-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
             </div>
         </div>
 
         <section class="mb-8">
-            <h2 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Disponíveis</h2>
-            <div id="pool-available" class="flex flex-wrap gap-2 min-h-[60px] p-3 bg-gray-800/40 rounded-xl border-2 border-dashed border-gray-600"></div>
+            <h2 id="pool-title" class="text-sm font-bold uppercase tracking-wider mb-3">Disponíveis</h2>
+            <div id="pool-available" class="flex flex-wrap gap-2 min-h-[60px] p-3 rounded-xl border-2 border-dashed border-black/20"></div>
         </section>
 
         <!-- Dynamic Category Pools -->
         <div id="categories-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
-        <div class="fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur border-t border-gray-700 p-4 shadow-lg z-10">
+        <div id="footer-bar" class="fixed bottom-0 left-0 right-0 backdrop-blur border-t p-4 shadow-lg z-10 transition-colors">
             <div class="max-w-md mx-auto">
-                <button id="submitBtn" disabled class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
+                <button id="submitBtn" disabled class="w-full font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
                     Enviar Votos
                 </button>
             </div>
@@ -75,57 +96,86 @@
     <div id="admin-screen" class="screen hidden max-w-xl mx-auto p-4 fade-in pb-12">
         <header class="flex justify-between items-center mb-6 pt-4 border-b border-gray-700 pb-4">
             <div>
-                <h1 class="text-2xl font-bold text-white">Painel Admin</h1>
-                <p class="text-sm text-gray-400" id="admin-vote-count">Carregando...</p>
+                <h1 id="admin-main-title" class="text-2xl font-bold">Painel Admin</h1>
+                <p id="admin-vote-count" class="text-sm opacity-80">Carregando...</p>
             </div>
             <button onclick="logout()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Sair</button>
         </header>
 
-        <!-- Configuração de Pontuação -->
-        <h2 class="text-lg font-bold text-gray-300 mb-3">Configurar Pontuação por Categoria</h2>
-        <div id="admin-points-config" class="bg-gray-800 rounded-xl border border-gray-700 p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-
-        <h2 class="text-lg font-bold text-gray-300 mb-3">Ranking Final</h2>
-        <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden mb-8" id="admin-results">
-            <div class="p-8 text-center text-gray-400">Calculando resultados...</div>
+        <!-- Sorteio de Times -->
+        <div class="mb-6">
+            <button onclick="openDrawModal()" class="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2">
+                🎲 Sortear Times Equilibrados
+            </button>
         </div>
 
-        <h2 class="text-lg font-bold text-gray-300 mb-3">Gerenciar Participantes</h2>
-        <div class="bg-gray-800 rounded-xl border border-gray-700 p-4 mb-8">
+        <!-- Configuração de Pontuação -->
+        <h2 id="admin-pts-title" class="text-lg font-bold mb-3">Configurar Pontuação por Categoria</h2>
+        <div id="admin-points-config" class="rounded-xl border p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3 shadow-sm"></div>
+
+        <h2 id="admin-ranking-title" class="text-lg font-bold mb-3">Ranking Final</h2>
+        <div class="rounded-xl border overflow-hidden mb-8 shadow-sm" id="admin-results">
+            <div class="p-8 text-center">Calculando resultados...</div>
+        </div>
+
+        <h2 id="admin-manage-title" class="text-lg font-bold mb-3">Gerenciar Participantes</h2>
+        <div class="rounded-xl border p-4 mb-8 shadow-sm" id="admin-manage-box">
             <div id="admin-players-list" class="flex flex-col gap-2 mb-4 max-h-[350px] overflow-y-auto pr-2"></div>
-            <div class="flex gap-2 pt-4 border-t border-gray-700">
-                <input type="text" id="new-player-name" placeholder="Nome do participante..." class="flex-1 bg-gray-900 border border-gray-600 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+            <div class="flex gap-2 pt-4 border-t border-black/10">
+                <input type="text" id="new-player-name" placeholder="Nome do participante..." class="flex-1 bg-black/10 border border-black/20 rounded-lg px-3 py-2 text-sm focus:outline-none">
                 <button onclick="addPlayer()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors">Adicionar</button>
             </div>
         </div>
 
-        <div class="mt-8 pt-6 border-t border-gray-700">
+        <div class="mt-8 pt-6 border-t border-black/20">
             <button onclick="resetDatabase()" id="btn-reset" class="w-full bg-red-900/80 hover:bg-red-700 text-red-100 font-bold py-3 px-4 rounded-xl border border-red-700 transition-colors">
                 ⚠️ Zerar Todos os Votos (Reset)
             </button>
         </div>
     </div>
 
+    <!-- Sorteio Modal -->
+    <div id="drawModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 fade-in">
+        <div id="draw-modal-box" class="w-full max-w-lg rounded-2xl p-6 shadow-2xl border max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 class="text-xl font-bold">🎲 Sorteio de Times Equilibrados</h3>
+                <button onclick="closeDrawModal()" class="text-xl font-bold px-2 py-1 rounded hover:bg-black/10">✕</button>
+            </div>
+            <div class="mb-4 flex items-center gap-3">
+                <label class="text-sm font-semibold">Quantidade de Times:</label>
+                <select id="num-teams" class="bg-black/10 border rounded-lg px-3 py-1.5 text-sm font-bold focus:outline-none">
+                    <option value="2">2 Times</option>
+                    <option value="3">3 Times</option>
+                    <option value="4">4 Times</option>
+                </select>
+                <button onclick="generateTeams()" class="bg-green-700 hover:bg-green-600 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors">Gerar Sorteio</button>
+            </div>
+            <div id="draw-results-container" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-3">
+                <p class="text-sm opacity-70 text-center py-6">Selecione a quantidade de times e clique em "Gerar Sorteio" com base no ranking atual.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Success Screen -->
     <div id="success-screen" class="screen hidden min-h-screen flex items-center justify-center px-4 fade-in">
-        <div class="bg-gray-800 border border-gray-700 p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl">
+        <div id="success-card" class="border p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl">
             <div class="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
             </div>
-            <h2 class="text-2xl font-bold text-white mb-2">Votação Registrada!</h2>
-            <p class="text-gray-400 mb-6">Obrigado por ajudar no nivelamento. Você já pode fechar esta página.</p>
-            <button onclick="logout()" class="text-blue-400 font-medium hover:text-blue-300 underline">Voltar ao início</button>
+            <h2 class="text-2xl font-bold mb-2">Votação Registrada!</h2>
+            <p class="opacity-80 mb-6">Obrigado por ajudar no nivelamento. Você já pode fechar esta página.</p>
+            <button onclick="logout()" class="font-medium underline">Voltar ao início</button>
         </div>
     </div>
 
     <!-- Modals -->
     <div id="actionModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-end justify-center fade-in">
-        <div class="bg-gray-800 w-full max-w-md rounded-t-2xl slide-up overflow-hidden border-t border-x border-gray-700">
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800/80 backdrop-blur">
-                <h3 id="modalTitle" class="text-lg font-bold text-white">Mover</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white p-1 rounded-full hover:bg-gray-700">
+        <div id="action-sheet-box" class="w-full max-w-md rounded-t-2xl slide-up overflow-hidden border-t border-x">
+            <div class="p-4 border-b flex justify-between items-center backdrop-blur">
+                <h3 id="modalTitle" class="text-lg font-bold">Mover</h3>
+                <button onclick="closeModal()" class="p-1 rounded-full">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -136,10 +186,10 @@
     </div>
 
     <div id="errorModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center px-4 fade-in">
-        <div class="bg-gray-800 border border-gray-700 p-6 rounded-2xl max-w-sm w-full text-center">
-            <h3 class="text-xl font-bold text-red-500 mb-2">Aviso</h3>
-            <p id="error-msg" class="text-gray-300 mb-6"></p>
-            <button onclick="closeError()" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-xl">OK</button>
+        <div class="bg-gray-800 border border-gray-700 p-6 rounded-2xl max-w-sm w-full text-center text-white">
+            <h3 class="text-xl font-bold text-red-400 mb-2">Aviso</h3>
+            <p id="error-msg" class="mb-6"></p>
+            <button onclick="closeError()" class="w-full bg-gray-700 hover:bg-gray-600 font-medium py-2 px-4 rounded-xl">OK</button>
         </div>
     </div>
 
@@ -169,7 +219,7 @@
             else grupoParam = 'sextou';
         }
 
-        // Definição dos Grupos com Senhas Admin Independentes
+        // Definição dos Grupos com Paletas e Regras Distintas
         const GROUPS = {
             sextou: {
                 name: "Vôlei Sextou",
@@ -191,13 +241,7 @@
                     { name: "Raissa", pass: "159753" }, { name: "Octavio", pass: "357159" },
                     { name: "Dionnys", pass: "753951" }, { name: "Guilherme", pass: "852456" }
                 ],
-                theme: {
-                    body: "bg-gray-900 text-gray-100",
-                    card: "bg-gray-800 border-gray-700",
-                    primary: "bg-blue-600 hover:bg-blue-500",
-                    accent: "text-blue-400",
-                    iconBg: "bg-blue-500/20 text-blue-500"
-                }
+                isPink: false
             },
             domingo: {
                 name: "Domingo na Quadra",
@@ -221,13 +265,7 @@
                     { name: "Rafaela", pass: "676767" }, { name: "Sabrina", pass: "787878" },
                     { name: "Tatiane", pass: "898989" }, { name: "Vanessa", pass: "909090" }
                 ],
-                theme: {
-                    body: "bg-pink-950 text-pink-50 selection:bg-pink-500 selection:text-white",
-                    card: "bg-pink-900/40 border-pink-800/60",
-                    primary: "bg-pink-600 hover:bg-pink-500",
-                    accent: "text-pink-300",
-                    iconBg: "bg-pink-500/20 text-pink-400"
-                }
+                isPink: true
             }
         };
 
@@ -239,38 +277,107 @@
             document.getElementById('page-title').textContent = `Nivelamento - ${activeGroup.name}`;
             document.getElementById('login-title').textContent = activeGroup.name;
             document.getElementById('voting-header-title').textContent = `Votação (${activeGroup.name})`;
-            
-            const body = document.getElementById('body-theme');
-            body.className = `${activeGroup.theme.body} min-h-screen font-sans transition-colors duration-300`;
-            
-            document.getElementById('login-card').className = `${activeGroup.theme.card} p-8 rounded-2xl shadow-xl w-full max-w-sm border text-center transition-colors`;
-            document.getElementById('login-icon').className = `w-16 h-16 ${activeGroup.theme.iconBg} rounded-full flex items-center justify-center mx-auto mb-4`;
-            
-            const btnLogin = document.getElementById('btn-login');
-            btnLogin.className = `w-full ${activeGroup.theme.primary} disabled:bg-gray-700 disabled:text-gray-400 text-white font-bold py-3 px-4 rounded-xl transition-colors duration-200`;
-            
-            document.getElementById('voting-card-bg').className = `${activeGroup.theme.card} rounded-xl p-4 border mb-6`;
-            document.getElementById('submitBtn').className = `w-full ${activeGroup.theme.primary} disabled:bg-gray-700 disabled:text-gray-500 text-white font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2`;
+            document.getElementById('admin-main-title').textContent = `Painel Admin - ${activeGroup.name}`;
 
+            const body = document.getElementById('body-theme');
+            
+            if (activeGroup.isPink) {
+                // Nova Paleta #ffa3c4 e tons #e78dae #ce7798 #b66081 #9d4a6b com textos legíveis (escuros)
+                body.className = "min-h-screen font-sans transition-colors duration-300 text-gray-900";
+                body.style.backgroundColor = "#ffa3c4";
+
+                document.getElementById('login-card').className = "p-8 rounded-2xl shadow-xl w-full max-w-sm border text-center transition-colors";
+                document.getElementById('login-card').style.backgroundColor = "#e78dae";
+                document.getElementById('login-card').style.borderColor = "#ce7798";
+                
+                document.getElementById('login-icon').className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-white shadow-sm";
+                document.getElementById('login-icon').style.backgroundColor = "#9d4a6b";
+                
+                document.getElementById('login-title').className = "text-2xl font-bold mb-2 text-gray-900";
+                document.getElementById('login-subtitle').className = "text-gray-800 text-sm mb-6";
+
+                const btnLogin = document.getElementById('btn-login');
+                btnLogin.className = "w-full font-bold py-3 px-4 rounded-xl transition-colors duration-200 text-white shadow-md";
+                btnLogin.style.backgroundColor = "#9d4a6b";
+
+                document.getElementById('voting-card-bg').className = "rounded-xl p-4 border mb-6 shadow-sm";
+                document.getElementById('voting-card-bg').style.backgroundColor = "#e78dae";
+                document.getElementById('voting-card-bg').style.borderColor = "#ce7798";
+
+                document.getElementById('pool-title').className = "text-sm font-bold uppercase tracking-wider mb-3 text-gray-900";
+                document.getElementById('pool-available').style.backgroundColor = "rgba(255, 255, 255, 0.4)";
+                document.getElementById('pool-available').style.borderColor = "#ce7798";
+
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.className = "w-full font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 text-white shadow-md";
+                submitBtn.style.backgroundColor = "#9d4a6b";
+
+                document.getElementById('footer-bar').style.backgroundColor = "rgba(255, 163, 196, 0.95)";
+                document.getElementById('footer-bar').style.borderColor = "#ce7798";
+                document.getElementById('logout-btn-vote').className = "absolute right-0 top-4 text-sm font-bold text-gray-900 hover:opacity-70";
+
+                // Admin screen styles for pink theme
+                document.getElementById('admin-points-config').style.backgroundColor = "#e78dae";
+                document.getElementById('admin-points-config').style.borderColor = "#ce7798";
+                document.getElementById('admin-results').style.backgroundColor = "#e78dae";
+                document.getElementById('admin-results').style.borderColor = "#ce7798";
+                document.getElementById('admin-manage-box').style.backgroundColor = "#e78dae";
+                document.getElementById('admin-manage-box').style.borderColor = "#ce7798";
+                
+                document.getElementById('draw-modal-box').style.backgroundColor = "#fce4ec";
+                document.getElementById('draw-modal-box').style.borderColor = "#ce7798";
+                document.getElementById('draw-modal-box').className += " text-gray-900";
+
+                document.getElementById('success-card').style.backgroundColor = "#e78dae";
+                document.getElementById('success-card').style.borderColor = "#ce7798";
+                document.getElementById('success-card').className += " text-gray-900";
+
+                document.getElementById('action-sheet-box').style.backgroundColor = "#e78dae";
+                document.getElementById('action-sheet-box').style.borderColor = "#ce7798";
+            } else {
+                body.className = "bg-gray-900 text-gray-100 min-h-screen font-sans transition-colors duration-300";
+                document.getElementById('login-card').className = "bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-sm border border-gray-700 text-center transition-colors";
+                document.getElementById('login-icon').className = "w-16 h-16 bg-blue-500/20 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4";
+                document.getElementById('btn-login').className = "w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-400 text-white font-bold py-3 px-4 rounded-xl transition-colors duration-200";
+                document.getElementById('voting-card-bg').className = "bg-gray-800 rounded-xl p-4 border border-gray-700 mb-6";
+                document.getElementById('pool-title').className = "text-sm font-bold text-gray-400 uppercase tracking-wider mb-3";
+                document.getElementById('pool-available').className = "flex flex-wrap gap-2 min-h-[60px] p-3 bg-gray-800/40 rounded-xl border-2 border-dashed border-gray-600";
+                document.getElementById('submitBtn').className = "w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 text-white font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2";
+                document.getElementById('footer-bar').className = "fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur border-t border-gray-700 p-4 shadow-lg z-10";
+                document.getElementById('logout-btn-vote').className = "absolute right-0 top-4 text-sm text-red-400 hover:text-red-300 font-medium";
+                document.getElementById('admin-points-config').className = "bg-gray-800 rounded-xl border border-gray-700 p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3";
+                document.getElementById('admin-results').className = "bg-gray-800 rounded-xl border border-gray-700 overflow-hidden mb-8";
+                document.getElementById('admin-manage-box').className = "bg-gray-800 rounded-xl border border-gray-700 p-4 mb-8";
+                document.getElementById('draw-modal-box').className = "w-full max-w-lg bg-gray-800 text-white rounded-2xl p-6 shadow-2xl border border-gray-700 max-h-[85vh] flex flex-col";
+                document.getElementById('success-card').className = "bg-gray-800 border border-gray-700 p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl text-white";
+                document.getElementById('action-sheet-box').className = "bg-gray-800 w-full max-w-md rounded-t-2xl slide-up overflow-hidden border-t border-x border-gray-700 text-white";
+            }
+
+            // Construir HTML dinâmico das categorias de votação
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
             
-            const colorMap = {
-                green: { bg: 'bg-green-900/40', text: 'text-green-400', badge: 'bg-green-900 text-green-300' },
-                blue: { bg: 'bg-blue-900/40', text: 'text-blue-400', badge: 'bg-blue-900 text-blue-300' },
-                yellow: { bg: 'bg-yellow-900/40', text: 'text-yellow-400', badge: 'bg-yellow-900 text-yellow-300' },
-                red: { bg: 'bg-red-900/40', text: 'text-red-400', badge: 'bg-red-900 text-red-300' }
-            };
-
             Object.keys(activeGroup.categories).forEach(key => {
                 const cat = activeGroup.categories[key];
-                const col = colorMap[cat.colorClass] || colorMap.blue;
+                let cardBg, headerBg, titleColor, badgeColor;
+
+                if (activeGroup.isPink) {
+                    cardBg = "bg-[#ce7798] border-[#b66081] text-gray-900";
+                    headerBg = "bg-[#b66081]/40 border-b border-[#b66081]";
+                    titleColor = "text-gray-900 font-bold";
+                    badgeColor = "bg-[#9d4a6b] text-white";
+                } else {
+                    cardBg = "bg-gray-800 border-gray-700";
+                    headerBg = "bg-gray-700/50 border-b border-gray-700";
+                    titleColor = "font-semibold text-gray-200";
+                    badgeColor = "bg-gray-700 text-gray-300";
+                }
                 
                 container.innerHTML += `
-                <div class="${activeGroup.theme.card} rounded-xl border flex flex-col overflow-hidden">
-                    <div class="${col.bg} px-3 py-2 border-b border-gray-700/50 flex justify-between items-center">
-                        <h3 class="font-semibold ${col.text}">${cat.name}</h3>
-                        <span id="count-${key}" class="text-xs font-bold ${col.badge} px-2 py-1 rounded-full">0/${cat.requiredCount}</span>
+                <div class="${cardBg} rounded-xl border flex flex-col overflow-hidden shadow-sm">
+                    <div class="${headerBg} px-3 py-2 flex justify-between items-center">
+                        <h3 class="${titleColor}">${cat.name}</h3>
+                        <span id="count-${key}" class="text-xs font-bold ${badgeColor} px-2 py-1 rounded-full">0/${cat.requiredCount}</span>
                     </div>
                     <div id="pool-${key}" class="p-3 flex-1 flex flex-col gap-2 min-h-[100px]"></div>
                 </div>`;
@@ -400,8 +507,8 @@
                 const badge = document.getElementById(`count-${catKey}`);
                 if (badge) {
                     badge.textContent = `${count}/${required}`;
-                    if (count === required) badge.classList.add('ring-2', 'ring-white/50');
-                    else badge.classList.remove('ring-2', 'ring-white/50');
+                    if (count === required) badge.classList.add('ring-2', 'ring-white/80');
+                    else badge.classList.remove('ring-2', 'ring-white/80');
                 }
                 if (count !== required) allValid = false;
             });
@@ -412,14 +519,18 @@
         }
 
         function getPlayerStyle(catId) {
-            const base = "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border";
-            if (catId === 'available') return `${base} bg-gray-800 text-gray-200 border-gray-700 w-auto inline-block`;
-            return `${base} bg-gray-800/80 text-white border-gray-600 w-full flex items-center justify-between before:content-['≡'] before:mr-2 before:text-gray-400`;
+            if (activeGroup.isPink) {
+                if (catId === 'available') return "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border bg-[#e78dae] text-gray-900 border-[#ce7798] shadow-sm";
+                return "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border bg-[#b66081] text-white border-[#9d4a6b] w-full flex items-center justify-between before:content-['≡'] before:mr-2 before:text-pink-200 shadow-sm";
+            } else {
+                if (catId === 'available') return "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border bg-gray-800 text-gray-200 border-gray-700 w-auto inline-block";
+                return "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border bg-gray-800/80 text-white border-gray-600 w-full flex items-center justify-between before:content-['≡'] before:mr-2 before:text-gray-400";
+            }
         }
 
         window.openActionModal = (player) => {
             const currentCat = playerAssignments[player];
-            document.getElementById('modalTitle').innerHTML = `Mover <span class="${activeGroup.theme.accent}">${player}</span>`;
+            document.getElementById('modalTitle').innerHTML = `Mover <span class="${activeGroup.isPink ? 'text-gray-900 font-bold' : 'text-blue-400'}">${player}</span>`;
             const opts = document.getElementById('modalOptions');
             opts.innerHTML = '';
 
@@ -432,7 +543,7 @@
 
             if (currentCat !== 'available') {
                 const btn = document.createElement('button');
-                btn.className = "w-full text-left px-4 py-3 rounded-xl border bg-gray-700 border-gray-600 text-white font-medium flex justify-between";
+                btn.className = "w-full text-left px-4 py-3 rounded-xl border font-medium flex justify-between shadow-sm " + (activeGroup.isPink ? "bg-[#ce7798] border-[#b66081] text-gray-900" : "bg-gray-700 border-gray-600 text-white");
                 btn.innerHTML = `<span>Remover para Disponíveis</span>`;
                 btn.onclick = () => { playerAssignments[player] = 'available'; closeModal(); renderVotingUI(); };
                 opts.appendChild(btn);
@@ -444,10 +555,15 @@
                 const isFull = localCounts[catKey] >= cat.requiredCount;
                 
                 const btn = document.createElement('button');
-                btn.className = `w-full text-left px-4 py-3 rounded-xl border font-medium flex justify-between ${
-                    isFull ? 'bg-gray-800 border-gray-700 text-gray-500 opacity-60' : 'bg-gray-700 border-gray-600 text-white'
-                }`;
-                btn.innerHTML = `${cat.name} <span class="text-xs px-2 py-1 rounded bg-gray-800">${localCounts[catKey]}/${cat.requiredCount}</span>`;
+                let btnStyle = "";
+                if (activeGroup.isPink) {
+                    btnStyle = isFull ? "bg-[#ce7798] border-[#b66081] text-gray-700 opacity-50" : "bg-[#ce7798] border-[#b66081] text-gray-900 font-semibold";
+                } else {
+                    btnStyle = isFull ? "bg-gray-800 border-gray-700 text-gray-500 opacity-60" : "bg-gray-700 border-gray-600 text-white";
+                }
+
+                btn.className = `w-full text-left px-4 py-3 rounded-xl border font-medium flex justify-between shadow-sm ${btnStyle}`;
+                btn.innerHTML = `${cat.name} <span class="text-xs px-2 py-1 rounded ${activeGroup.isPink ? 'bg-[#9d4a6b] text-white' : 'bg-gray-800'}">${localCounts[catKey]}/${cat.requiredCount}</span>`;
                 btn.disabled = isFull;
                 if(!isFull) {
                     btn.onclick = () => { playerAssignments[player] = catKey; closeModal(); renderVotingUI(); };
@@ -483,6 +599,9 @@
                 btn.disabled = false; btn.textContent = "Enviar Votos";
             }
         }
+
+        // Armazenamento global para uso no sorteio
+        let globalRankedPlayers = [];
 
         async function loadAdminData() {
             try {
@@ -528,6 +647,7 @@
                 document.getElementById('admin-vote-count').textContent = `${totalVotes} pessoas já votaram`;
 
                 const ranked = Object.keys(scores).map(name => ({ name, score: scores[name] })).sort((a,b) => b.score - a.score);
+                globalRankedPlayers = ranked; // Salva para o sorteio
                 
                 const categoryRanges = [];
                 Object.keys(activeGroup.categories).forEach(k => {
@@ -539,8 +659,8 @@
                 ranked.forEach((p, index) => {
                     let assignedCatName = "Reserva";
                     let runningSum = 0;
-                    let foundColor = "text-gray-400";
-                    const colorsList = ["text-red-400", "text-yellow-400", "text-blue-400", "text-green-400", "text-purple-400"];
+                    let foundColor = activeGroup.isPink ? "text-gray-900 font-bold" : "text-gray-400";
+                    const colorsList = activeGroup.isPink ? ["text-gray-900 font-bold", "text-gray-800 font-bold", "text-gray-900 font-bold"] : ["text-red-400", "text-yellow-400", "text-blue-400", "text-green-400"];
                     let colorIndex = 0;
 
                     for (const catRange of categoryRanges) {
@@ -553,35 +673,37 @@
                         colorIndex++;
                     }
 
+                    const rowBg = activeGroup.isPink ? "bg-[#e78dae] border-[#ce7798] text-gray-900" : "bg-gray-800 border-gray-700";
                     resultsHtml += `
-                    <div class="flex justify-between items-center p-3 bg-gray-800 border-b border-gray-700 last:border-0">
+                    <div class="flex justify-between items-center p-3 ${rowBg} border-b last:border-0">
                         <div class="flex items-center gap-3">
-                            <span class="text-gray-500 font-bold w-4">${index + 1}</span>
-                            <span class="font-semibold text-white">${p.name}</span>
+                            <span class="opacity-70 font-bold w-4">${index + 1}</span>
+                            <span class="font-semibold">${p.name}</span>
                         </div>
                         <div class="flex items-center gap-4">
                             <span class="text-sm font-bold ${foundColor}">${assignedCatName}</span>
-                            <span class="bg-gray-700 text-gray-300 px-2 py-1 rounded text-sm w-16 text-center">${p.score} pts</span>
+                            <span class="${activeGroup.isPink ? 'bg-[#ce7798] text-gray-900 font-bold' : 'bg-gray-700 text-gray-300'} px-2 py-1 rounded text-sm w-16 text-center">${p.score} pts</span>
                         </div>
                     </div>`;
                 });
-                document.getElementById('admin-results').innerHTML = resultsHtml || '<div class="p-4 text-gray-400">Nenhum participante.</div>';
+                document.getElementById('admin-results').innerHTML = resultsHtml || '<div class="p-4 opacity-70">Nenhum participante.</div>';
 
                 currentPlayers.sort((a, b) => a.name.localeCompare(b.name));
                 let manageHtml = '';
                 currentPlayers.forEach(p => {
+                    const itemBg = activeGroup.isPink ? "bg-[#e78dae] border-[#ce7798] text-gray-900" : "bg-gray-700/60 border-gray-600 text-white";
                     manageHtml += `
-                    <div class="flex justify-between items-center bg-gray-700/60 p-3 rounded-lg border border-gray-600">
+                    <div class="flex justify-between items-center ${itemBg} p-3 rounded-lg border shadow-sm">
                         <div>
-                            <div class="font-bold text-white flex items-center gap-2">
+                            <div class="font-bold flex items-center gap-2">
                                 ${p.name}
-                                ${p.voted ? '<span class="bg-green-600 text-white text-[10px] px-1.5 py-0.5 rounded uppercase">Votou</span>' : '<span class="bg-yellow-600 text-white text-[10px] px-1.5 py-0.5 rounded uppercase">Pendente</span>'}
+                                ${p.voted ? '<span class="bg-green-700 text-white text-[10px] px-1.5 py-0.5 rounded uppercase font-bold">Votou</span>' : '<span class="bg-amber-600 text-white text-[10px] px-1.5 py-0.5 rounded uppercase font-bold">Pendente</span>'}
                             </div>
-                            <div class="text-sm text-gray-300 mt-1">Senha: <span class="font-mono text-blue-300 font-bold tracking-widest">${p.password}</span></div>
+                            <div class="text-sm mt-1 opacity-90">Senha: <span class="font-mono font-bold tracking-widest">${p.password}</span></div>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="resetPassword('${p.name}')" class="p-2 bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors" title="Gerar nova senha">🔄</button>
-                            <button onclick="removePlayer('${p.name}')" class="p-2 bg-red-900/80 hover:bg-red-700 text-red-200 rounded transition-colors" title="Remover participante">🗑️</button>
+                            <button onclick="resetPassword('${p.name}')" class="p-2 ${activeGroup.isPink ? 'bg-[#ce7798] text-gray-900 hover:bg-[#b66081] hover:text-white' : 'bg-gray-600 hover:bg-gray-500 text-white'} rounded transition-colors" title="Gerar nova senha">🔄</button>
+                            <button onclick="removePlayer('${p.name}')" class="p-2 bg-red-900/80 hover:bg-red-700 text-red-100 rounded transition-colors" title="Remover participante">🗑️</button>
                         </div>
                     </div>`;
                 });
@@ -600,15 +722,15 @@
                 const cat = activeGroup.categories[k];
                 container.innerHTML += `
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs text-gray-300 font-medium">${cat.name}</label>
+                    <label class="text-xs font-bold opacity-90">${cat.name}</label>
                     <div class="flex gap-2">
-                        <input type="number" id="pts-${k}" value="${currentPoints[k]}" class="w-full bg-gray-900 border border-gray-600 text-white rounded-lg px-3 py-1.5 text-sm">
+                        <input type="number" id="pts-${k}" value="${currentPoints[k]}" class="w-full ${activeGroup.isPink ? 'bg-[#ce7798] text-gray-900 border-[#b66081] font-bold' : 'bg-gray-900 text-white border-gray-600'} border rounded-lg px-3 py-1.5 text-sm focus:outline-none">
                     </div>
                 </div>`;
             });
             container.innerHTML += `
             <div class="sm:col-span-2 pt-2">
-                <button onclick="savePointsConfig()" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors">Salvar Nova Pontuação</button>
+                <button onclick="savePointsConfig()" class="w-full ${activeGroup.isPink ? 'bg-[#9d4a6b] hover:bg-[#b66081]' : 'bg-green-700 hover:bg-green-600'} text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors shadow-md">Salvar Nova Pontuação</button>
             </div>`;
         }
 
@@ -625,6 +747,76 @@
             } catch(e) {
                 alert("Erro ao salvar pontuações.");
             }
+        };
+
+        // --- LÓGICA DE SORTEIO DE TIMES EQUILIBRADOS ---
+        window.openDrawModal = () => {
+            if (!globalRankedPlayers || globalRankedPlayers.length === 0) {
+                alert("Carregando ou sem participantes no ranking.");
+                return;
+            }
+            document.getElementById('drawModal').classList.remove('hidden');
+            generateTeams(); // Gera automaticamente ao abrir
+        };
+
+        window.closeDrawModal = () => {
+            document.getElementById('drawModal').classList.add('hidden');
+        };
+
+        window.generateTeams = () => {
+            const numTeams = parseInt(document.getElementById('num-teams').value);
+            const players = [...globalRankedPlayers]; // Já ordenados por pontuação (melhores primeiro)
+            
+            // Inicializa os times
+            const teams = Array.from({ length: numTeams }, () => []);
+
+            // Método Serpentina (Snake Draft) para equilibrar forças
+            // Ex: Time 1, Time 2, Time 3 -> Time 3, Time 2, Time 1...
+            let forward = true;
+            let teamIndex = 0;
+
+            players.forEach((p, idx) => {
+                teams[teamIndex].push(p);
+                if (forward) {
+                    teamIndex++;
+                    if (teamIndex >= numTeams) {
+                        teamIndex = numTeams - 1;
+                        forward = false;
+                    }
+                } else {
+                    teamIndex--;
+                    if (teamIndex < 0) {
+                        teamIndex = 0;
+                        forward = true;
+                    }
+                }
+            });
+
+            // Renderizar resultado
+            let html = '';
+            teams.forEach((team, tIdx) => {
+                const totalScore = team.reduce((acc, curr) => acc + curr.score, 0);
+                const teamBg = activeGroup.isPink ? "bg-[#e78dae] border-[#ce7798]" : "bg-gray-700/70 border-gray-600";
+                
+                html += `
+                <div class="${teamBg} border rounded-xl p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-2 border-b pb-1">
+                        <h4 class="font-bold text-base">🟢 Time ${tIdx + 1}</h4>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-black/20">Pontuação Total: ${totalScore} pts</span>
+                    </div>
+                    <ul class="flex flex-col gap-1 text-sm">`;
+                
+                team.forEach((member, mIdx) => {
+                    html += `<li class="flex justify-between items-center py-0.5 px-2 rounded bg-black/5">
+                        <span>${mIdx + 1}. <strong>${member.name}</strong></span>
+                        <span class="text-xs opacity-75">${member.score} pts</span>
+                    </li>`;
+                });
+
+                html += `</ul></div>`;
+            });
+
+            document.getElementById('draw-results-container').innerHTML = html;
         };
 
         window.addPlayer = async () => {
@@ -701,3 +893,5 @@
     </script>
 </body>
 </html>
+
+```
