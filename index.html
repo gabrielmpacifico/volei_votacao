@@ -1,24 +1,3 @@
-Aqui está o código completo atualizado com todas as suas solicitações para o grupo **Domingo na Quadra**:
-
-1. **Nova Paleta de Cores Personalizada:**
-* Fundo geral: `#ffa3c4` (um tom de rosa vivo e acolhedor).
-* Tons e variações aplicados nos cards e categorias utilizando `#e78dae`, `#ce7798`, `#b66081` e `#9d4a6b`.
-* **Contraste e Legibilidade:** Todos os textos do grupo Domingo na Quadra foram ajustados para cores escuras de alta intensidade sobre os fundos rosados claros, garantindo legibilidade perfeita tanto no celular quanto no computador.
-
-
-2. **Botão de Sorteio de Times Equilibrados:**
-* Adicionado no painel Admin do grupo Domingo na Quadra (e também disponível no Sextou) um botão dedicado: **"🎲 Sortear Times Equilibrados"**.
-* **Como funciona o sorteio:** O algoritmo pega o ranking atual baseado nas pontuações, divide as jogadoras em blocos de nível (por exemplo, dividindo por 2 ou 3 times dependendo da quantidade de jogadoras) e distribui de forma alternada (método "serpentina") para que os times fiquem o mais equilibrados possível, misturando atletas de diferentes faixas de fundamento. O resultado é exibido em uma janela clara na tela.
-
-
-
----
-
-### Código Completo (`index.html`)
-
-Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o deploy no Vercel:
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -33,7 +12,7 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.25); border-radius: 4px; }
     </style>
 </head>
 <body id="body-theme" class="bg-gray-900 text-gray-100 min-h-screen font-sans transition-colors duration-300">
@@ -62,7 +41,7 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
         <header class="text-center mb-6 pt-4 relative">
             <button onclick="logout()" id="logout-btn-vote" class="absolute right-0 top-4 text-sm font-medium">Sair</button>
             <h1 id="voting-header-title" class="text-2xl font-bold mb-1">Votação</h1>
-            <p id="voting-subtitle" class="text-sm opacity-80">Logado como: <span id="current-user-name" class="font-bold">...</span></p>
+            <p id="voting-subtitle" class="text-sm opacity-90">Logado como: <span id="current-user-name" class="font-bold">...</span></p>
         </header>
 
         <div id="voting-card-bg" class="bg-gray-800 rounded-xl p-4 border border-gray-700 mb-6 shadow-sm">
@@ -94,12 +73,12 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
 
     <!-- Admin Screen -->
     <div id="admin-screen" class="screen hidden max-w-xl mx-auto p-4 fade-in pb-12">
-        <header class="flex justify-between items-center mb-6 pt-4 border-b border-gray-700 pb-4">
+        <header class="flex justify-between items-center mb-6 pt-4 border-b border-black/20 pb-4">
             <div>
                 <h1 id="admin-main-title" class="text-2xl font-bold">Painel Admin</h1>
-                <p id="admin-vote-count" class="text-sm opacity-80">Carregando...</p>
+                <p id="admin-vote-count" class="text-sm opacity-85">Carregando...</p>
             </div>
-            <button onclick="logout()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Sair</button>
+            <button onclick="logout()" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Sair</button>
         </header>
 
         <!-- Sorteio de Times -->
@@ -128,7 +107,7 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
         </div>
 
         <div class="mt-8 pt-6 border-t border-black/20">
-            <button onclick="resetDatabase()" id="btn-reset" class="w-full bg-red-900/80 hover:bg-red-700 text-red-100 font-bold py-3 px-4 rounded-xl border border-red-700 transition-colors">
+            <button onclick="resetDatabase()" id="btn-reset" class="w-full bg-red-900/90 hover:bg-red-700 text-red-100 font-bold py-3 px-4 rounded-xl border border-red-700 transition-colors">
                 ⚠️ Zerar Todos os Votos (Reset)
             </button>
         </div>
@@ -137,13 +116,13 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
     <!-- Sorteio Modal -->
     <div id="drawModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 fade-in">
         <div id="draw-modal-box" class="w-full max-w-lg rounded-2xl p-6 shadow-2xl border max-h-[85vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
+            <div class="flex justify-between items-center mb-4 border-b border-black/15 pb-3">
                 <h3 class="text-xl font-bold">🎲 Sorteio de Times Equilibrados</h3>
                 <button onclick="closeDrawModal()" class="text-xl font-bold px-2 py-1 rounded hover:bg-black/10">✕</button>
             </div>
             <div class="mb-4 flex items-center gap-3">
                 <label class="text-sm font-semibold">Quantidade de Times:</label>
-                <select id="num-teams" class="bg-black/10 border rounded-lg px-3 py-1.5 text-sm font-bold focus:outline-none">
+                <select id="num-teams" class="bg-black/10 border border-black/20 rounded-lg px-3 py-1.5 text-sm font-bold focus:outline-none">
                     <option value="2">2 Times</option>
                     <option value="3">3 Times</option>
                     <option value="4">4 Times</option>
@@ -159,23 +138,23 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
     <!-- Success Screen -->
     <div id="success-screen" class="screen hidden min-h-screen flex items-center justify-center px-4 fade-in">
         <div id="success-card" class="border p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl">
-            <div class="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="w-20 h-20 bg-green-600/20 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
             </div>
             <h2 class="text-2xl font-bold mb-2">Votação Registrada!</h2>
-            <p class="opacity-80 mb-6">Obrigado por ajudar no nivelamento. Você já pode fechar esta página.</p>
-            <button onclick="logout()" class="font-medium underline">Voltar ao início</button>
+            <p class="opacity-85 mb-6">Obrigado por ajudar no nivelamento. Você já pode fechar esta página.</p>
+            <button onclick="logout()" class="font-bold underline">Voltar ao início</button>
         </div>
     </div>
 
     <!-- Modals -->
     <div id="actionModal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-end justify-center fade-in">
         <div id="action-sheet-box" class="w-full max-w-md rounded-t-2xl slide-up overflow-hidden border-t border-x">
-            <div class="p-4 border-b flex justify-between items-center backdrop-blur">
+            <div class="p-4 border-b border-black/15 flex justify-between items-center backdrop-blur">
                 <h3 id="modalTitle" class="text-lg font-bold">Mover</h3>
-                <button onclick="closeModal()" class="p-1 rounded-full">
+                <button onclick="closeModal()" class="p-1 rounded-full hover:bg-black/10">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -219,7 +198,7 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
             else grupoParam = 'sextou';
         }
 
-        // Definição dos Grupos com Paletas e Regras Distintas
+        // Definição dos Grupos com Paletas e Cores de Categorias
         const GROUPS = {
             sextou: {
                 name: "Vôlei Sextou",
@@ -271,6 +250,71 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
 
         const activeGroup = GROUPS[grupoParam] || GROUPS.sextou;
         const ADMIN_PASS = activeGroup.adminPass;
+
+        // Estilos específicos de cada categoria (Azul, Amarelo, Vermelho, Verde)
+        const CATEGORY_STYLES = {
+            blue: {
+                darkCard: "bg-gray-800 border-gray-700",
+                darkHeader: "bg-blue-900/40 border-b border-gray-700",
+                darkTitle: "font-semibold text-blue-400",
+                darkBadge: "bg-blue-900 text-blue-300",
+                darkChip: "bg-blue-900/50 text-blue-100 border-blue-700/50",
+                pinkCard: "bg-blue-950/90 border-blue-800 text-white",
+                pinkHeader: "bg-blue-800 border-b border-blue-700",
+                pinkTitle: "font-bold text-white",
+                pinkBadge: "bg-blue-600 text-white",
+                pinkChip: "bg-blue-900/90 text-white border-blue-700",
+                modalDot: "bg-blue-500",
+                rankBadgeDark: "text-blue-400",
+                rankBadgePink: "bg-blue-800 text-white px-2 py-0.5 rounded-md text-xs font-bold"
+            },
+            yellow: {
+                darkCard: "bg-gray-800 border-gray-700",
+                darkHeader: "bg-yellow-900/40 border-b border-gray-700",
+                darkTitle: "font-semibold text-yellow-400",
+                darkBadge: "bg-yellow-900 text-yellow-300",
+                darkChip: "bg-yellow-900/50 text-yellow-100 border-yellow-700/50",
+                pinkCard: "bg-amber-950/90 border-amber-800 text-white",
+                pinkHeader: "bg-amber-600 border-b border-amber-700",
+                pinkTitle: "font-bold text-gray-950",
+                pinkBadge: "bg-amber-900 text-amber-100",
+                pinkChip: "bg-amber-900/90 text-amber-50 border-amber-700",
+                modalDot: "bg-yellow-400",
+                rankBadgeDark: "text-yellow-400",
+                rankBadgePink: "bg-amber-500 text-gray-950 px-2 py-0.5 rounded-md text-xs font-bold"
+            },
+            red: {
+                darkCard: "bg-gray-800 border-gray-700",
+                darkHeader: "bg-red-900/40 border-b border-gray-700",
+                darkTitle: "font-semibold text-red-400",
+                darkBadge: "bg-red-900 text-red-300",
+                darkChip: "bg-red-900/50 text-red-100 border-red-700/50",
+                pinkCard: "bg-red-950/90 border-red-800 text-white",
+                pinkHeader: "bg-red-800 border-b border-red-700",
+                pinkTitle: "font-bold text-white",
+                pinkBadge: "bg-red-600 text-white",
+                pinkChip: "bg-red-900/90 text-white border-red-700",
+                modalDot: "bg-red-500",
+                rankBadgeDark: "text-red-400",
+                rankBadgePink: "bg-red-800 text-white px-2 py-0.5 rounded-md text-xs font-bold"
+            },
+            green: {
+                darkCard: "bg-gray-800 border-gray-700",
+                darkHeader: "bg-green-900/40 border-b border-gray-700",
+                darkTitle: "font-semibold text-green-400",
+                darkBadge: "bg-green-900 text-green-300",
+                darkChip: "bg-green-900/50 text-green-100 border-green-700/50",
+                pinkCard: "bg-green-950/90 border-green-800 text-white",
+                pinkHeader: "bg-green-800 border-b border-green-700",
+                pinkTitle: "font-bold text-white",
+                pinkBadge: "bg-green-600 text-white",
+                pinkChip: "bg-green-900/90 text-white border-green-700",
+                modalDot: "bg-green-500",
+                rankBadgeDark: "text-green-400",
+                rankBadgePink: "bg-green-800 text-white px-2 py-0.5 rounded-md text-xs font-bold"
+            }
+        };
+
         applyThemeAndConfig();
 
         function applyThemeAndConfig() {
@@ -282,7 +326,7 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
             const body = document.getElementById('body-theme');
             
             if (activeGroup.isPink) {
-                // Nova Paleta #ffa3c4 e tons #e78dae #ce7798 #b66081 #9d4a6b com textos legíveis (escuros)
+                // Paleta rosa #ffa3c4 e tons #e78dae #ce7798 #b66081 #9d4a6b com textos escuros legíveis
                 body.className = "min-h-screen font-sans transition-colors duration-300 text-gray-900";
                 body.style.backgroundColor = "#ffa3c4";
 
@@ -304,19 +348,21 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
                 document.getElementById('voting-card-bg').style.backgroundColor = "#e78dae";
                 document.getElementById('voting-card-bg').style.borderColor = "#ce7798";
 
+                document.getElementById('progress-bar').style.backgroundColor = "#9d4a6b";
+
                 document.getElementById('pool-title').className = "text-sm font-bold uppercase tracking-wider mb-3 text-gray-900";
-                document.getElementById('pool-available').style.backgroundColor = "rgba(255, 255, 255, 0.4)";
+                document.getElementById('pool-available').style.backgroundColor = "rgba(255, 255, 255, 0.45)";
                 document.getElementById('pool-available').style.borderColor = "#ce7798";
 
                 const submitBtn = document.getElementById('submitBtn');
-                submitBtn.className = "w-full font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 text-white shadow-md";
+                submitBtn.className = "w-full font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2 text-white shadow-md disabled:opacity-50";
                 submitBtn.style.backgroundColor = "#9d4a6b";
 
                 document.getElementById('footer-bar').style.backgroundColor = "rgba(255, 163, 196, 0.95)";
                 document.getElementById('footer-bar').style.borderColor = "#ce7798";
                 document.getElementById('logout-btn-vote').className = "absolute right-0 top-4 text-sm font-bold text-gray-900 hover:opacity-70";
 
-                // Admin screen styles for pink theme
+                // Admin screen styles
                 document.getElementById('admin-points-config').style.backgroundColor = "#e78dae";
                 document.getElementById('admin-points-config').style.borderColor = "#ce7798";
                 document.getElementById('admin-results').style.backgroundColor = "#e78dae";
@@ -334,6 +380,7 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
 
                 document.getElementById('action-sheet-box').style.backgroundColor = "#e78dae";
                 document.getElementById('action-sheet-box').style.borderColor = "#ce7798";
+                document.getElementById('action-sheet-box').className += " text-gray-900";
             } else {
                 body.className = "bg-gray-900 text-gray-100 min-h-screen font-sans transition-colors duration-300";
                 document.getElementById('login-card').className = "bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-sm border border-gray-700 text-center transition-colors";
@@ -353,31 +400,24 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
                 document.getElementById('action-sheet-box').className = "bg-gray-800 w-full max-w-md rounded-t-2xl slide-up overflow-hidden border-t border-x border-gray-700 text-white";
             }
 
-            // Construir HTML dinâmico das categorias de votação
+            // Construir HTML dinâmico das categorias de votação mantendo as cores próprias (Azul, Amarelo, Vermelho, Verde)
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
             
             Object.keys(activeGroup.categories).forEach(key => {
                 const cat = activeGroup.categories[key];
-                let cardBg, headerBg, titleColor, badgeColor;
+                const style = CATEGORY_STYLES[cat.colorClass] || CATEGORY_STYLES.blue;
 
-                if (activeGroup.isPink) {
-                    cardBg = "bg-[#ce7798] border-[#b66081] text-gray-900";
-                    headerBg = "bg-[#b66081]/40 border-b border-[#b66081]";
-                    titleColor = "text-gray-900 font-bold";
-                    badgeColor = "bg-[#9d4a6b] text-white";
-                } else {
-                    cardBg = "bg-gray-800 border-gray-700";
-                    headerBg = "bg-gray-700/50 border-b border-gray-700";
-                    titleColor = "font-semibold text-gray-200";
-                    badgeColor = "bg-gray-700 text-gray-300";
-                }
+                const cardBg = activeGroup.isPink ? style.pinkCard : style.darkCard;
+                const headerBg = activeGroup.isPink ? style.pinkHeader : style.darkHeader;
+                const titleColor = activeGroup.isPink ? style.pinkTitle : style.darkTitle;
+                const badgeColor = activeGroup.isPink ? style.pinkBadge : style.darkBadge;
                 
                 container.innerHTML += `
-                <div class="${cardBg} rounded-xl border flex flex-col overflow-hidden shadow-sm">
-                    <div class="${headerBg} px-3 py-2 flex justify-between items-center">
+                <div class="${cardBg} rounded-xl border flex flex-col overflow-hidden shadow-md">
+                    <div class="${headerBg} px-3 py-2.5 flex justify-between items-center">
                         <h3 class="${titleColor}">${cat.name}</h3>
-                        <span id="count-${key}" class="text-xs font-bold ${badgeColor} px-2 py-1 rounded-full">0/${cat.requiredCount}</span>
+                        <span id="count-${key}" class="text-xs font-bold ${badgeColor} px-2.5 py-1 rounded-full">0/${cat.requiredCount}</span>
                     </div>
                     <div id="pool-${key}" class="p-3 flex-1 flex flex-col gap-2 min-h-[100px]"></div>
                 </div>`;
@@ -519,18 +559,24 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
         }
 
         function getPlayerStyle(catId) {
-            if (activeGroup.isPink) {
-                if (catId === 'available') return "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border bg-[#e78dae] text-gray-900 border-[#ce7798] shadow-sm";
-                return "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border bg-[#b66081] text-white border-[#9d4a6b] w-full flex items-center justify-between before:content-['≡'] before:mr-2 before:text-pink-200 shadow-sm";
-            } else {
-                if (catId === 'available') return "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border bg-gray-800 text-gray-200 border-gray-700 w-auto inline-block";
-                return "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border bg-gray-800/80 text-white border-gray-600 w-full flex items-center justify-between before:content-['≡'] before:mr-2 before:text-gray-400";
+            const base = "px-3 py-2 rounded-lg text-sm font-medium transition-transform active:scale-95 text-left truncate border";
+            if (catId === 'available') {
+                if (activeGroup.isPink) {
+                    return `${base} bg-[#e78dae] text-gray-900 font-semibold border-[#ce7798] shadow-sm w-auto inline-block`;
+                }
+                return `${base} bg-gray-800 text-gray-200 border-gray-700 w-auto inline-block`;
             }
+
+            const cat = activeGroup.categories[catId];
+            const style = CATEGORY_STYLES[cat?.colorClass] || CATEGORY_STYLES.blue;
+            const chipColor = activeGroup.isPink ? style.pinkChip : style.darkChip;
+
+            return `${base} ${chipColor} w-full flex items-center justify-between before:content-['≡'] before:mr-2 before:opacity-60 shadow-sm`;
         }
 
         window.openActionModal = (player) => {
             const currentCat = playerAssignments[player];
-            document.getElementById('modalTitle').innerHTML = `Mover <span class="${activeGroup.isPink ? 'text-gray-900 font-bold' : 'text-blue-400'}">${player}</span>`;
+            document.getElementById('modalTitle').innerHTML = `Mover <span class="${activeGroup.isPink ? 'text-gray-950 font-extrabold underline' : 'text-blue-400'}">${player}</span>`;
             const opts = document.getElementById('modalOptions');
             opts.innerHTML = '';
 
@@ -543,7 +589,7 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
 
             if (currentCat !== 'available') {
                 const btn = document.createElement('button');
-                btn.className = "w-full text-left px-4 py-3 rounded-xl border font-medium flex justify-between shadow-sm " + (activeGroup.isPink ? "bg-[#ce7798] border-[#b66081] text-gray-900" : "bg-gray-700 border-gray-600 text-white");
+                btn.className = "w-full text-left px-4 py-3 rounded-xl border font-medium flex justify-between shadow-sm " + (activeGroup.isPink ? "bg-[#ce7798] border-[#b66081] text-gray-900 font-semibold" : "bg-gray-700 border-gray-600 text-white");
                 btn.innerHTML = `<span>Remover para Disponíveis</span>`;
                 btn.onclick = () => { playerAssignments[player] = 'available'; closeModal(); renderVotingUI(); };
                 opts.appendChild(btn);
@@ -552,18 +598,24 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
             Object.keys(activeGroup.categories).forEach(catKey => {
                 if (catKey === currentCat) return;
                 const cat = activeGroup.categories[catKey];
+                const style = CATEGORY_STYLES[cat.colorClass] || CATEGORY_STYLES.blue;
                 const isFull = localCounts[catKey] >= cat.requiredCount;
                 
                 const btn = document.createElement('button');
                 let btnStyle = "";
                 if (activeGroup.isPink) {
-                    btnStyle = isFull ? "bg-[#ce7798] border-[#b66081] text-gray-700 opacity-50" : "bg-[#ce7798] border-[#b66081] text-gray-900 font-semibold";
+                    btnStyle = isFull ? "bg-[#ce7798] border-[#b66081] text-gray-700 opacity-50" : "bg-[#ce7798] border-[#b66081] text-gray-900 font-bold hover:bg-[#b66081] hover:text-white";
                 } else {
                     btnStyle = isFull ? "bg-gray-800 border-gray-700 text-gray-500 opacity-60" : "bg-gray-700 border-gray-600 text-white";
                 }
 
-                btn.className = `w-full text-left px-4 py-3 rounded-xl border font-medium flex justify-between shadow-sm ${btnStyle}`;
-                btn.innerHTML = `${cat.name} <span class="text-xs px-2 py-1 rounded ${activeGroup.isPink ? 'bg-[#9d4a6b] text-white' : 'bg-gray-800'}">${localCounts[catKey]}/${cat.requiredCount}</span>`;
+                btn.className = `w-full text-left px-4 py-3 rounded-xl border font-medium flex justify-between items-center shadow-sm transition-colors ${btnStyle}`;
+                btn.innerHTML = `
+                    <span class="flex items-center gap-2.5">
+                        <span class="w-3 h-3 rounded-full ${style.modalDot} inline-block shadow-sm"></span>
+                        <span>${cat.name}</span>
+                    </span>
+                    <span class="text-xs px-2 py-1 rounded ${activeGroup.isPink ? 'bg-[#9d4a6b] text-white' : 'bg-gray-800'}">${localCounts[catKey]}/${cat.requiredCount}</span>`;
                 btn.disabled = isFull;
                 if(!isFull) {
                     btn.onclick = () => { playerAssignments[player] = catKey; closeModal(); renderVotingUI(); };
@@ -647,41 +699,44 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
                 document.getElementById('admin-vote-count').textContent = `${totalVotes} pessoas já votaram`;
 
                 const ranked = Object.keys(scores).map(name => ({ name, score: scores[name] })).sort((a,b) => b.score - a.score);
-                globalRankedPlayers = ranked; // Salva para o sorteio
+                globalRankedPlayers = ranked;
                 
-                const categoryRanges = [];
-                Object.keys(activeGroup.categories).forEach(k => {
-                    const cat = activeGroup.categories[k];
-                    categoryRanges.push({ key: k, name: cat.name, count: cat.requiredCount });
-                });
+                // Ordena as faixas de categoria da maior pontuação para a menor (ex: Vermelho -> Amarelo -> Azul)
+                const categoryRanges = Object.keys(activeGroup.categories)
+                    .map(k => ({
+                        key: k,
+                        name: activeGroup.categories[k].name,
+                        count: activeGroup.categories[k].requiredCount,
+                        points: currentPoints[k],
+                        colorClass: activeGroup.categories[k].colorClass
+                    }))
+                    .sort((a, b) => b.points - a.points);
 
                 let resultsHtml = '';
                 ranked.forEach((p, index) => {
                     let assignedCatName = "Reserva";
                     let runningSum = 0;
-                    let foundColor = activeGroup.isPink ? "text-gray-900 font-bold" : "text-gray-400";
-                    const colorsList = activeGroup.isPink ? ["text-gray-900 font-bold", "text-gray-800 font-bold", "text-gray-900 font-bold"] : ["text-red-400", "text-yellow-400", "text-blue-400", "text-green-400"];
-                    let colorIndex = 0;
+                    let badgeClass = activeGroup.isPink ? "text-gray-800 font-bold text-xs" : "text-gray-400 text-sm font-bold";
 
                     for (const catRange of categoryRanges) {
                         runningSum += catRange.count;
                         if (index < runningSum) {
                             assignedCatName = catRange.name;
-                            foundColor = colorsList[colorIndex % colorsList.length];
+                            const style = CATEGORY_STYLES[catRange.colorClass] || CATEGORY_STYLES.blue;
+                            badgeClass = activeGroup.isPink ? style.rankBadgePink : `${style.rankBadgeDark} text-sm font-bold`;
                             break;
                         }
-                        colorIndex++;
                     }
 
                     const rowBg = activeGroup.isPink ? "bg-[#e78dae] border-[#ce7798] text-gray-900" : "bg-gray-800 border-gray-700";
                     resultsHtml += `
-                    <div class="flex justify-between items-center p-3 ${rowBg} border-b last:border-0">
-                        <div class="flex items-center gap-3">
-                            <span class="opacity-70 font-bold w-4">${index + 1}</span>
-                            <span class="font-semibold">${p.name}</span>
+                    <div class="flex justify-between items-center p-3 ${rowBg} border-b last:border-0 gap-2">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span class="opacity-70 font-bold w-4 shrink-0">${index + 1}</span>
+                            <span class="font-semibold truncate">${p.name}</span>
                         </div>
-                        <div class="flex items-center gap-4">
-                            <span class="text-sm font-bold ${foundColor}">${assignedCatName}</span>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="${badgeClass}">${assignedCatName}</span>
                             <span class="${activeGroup.isPink ? 'bg-[#ce7798] text-gray-900 font-bold' : 'bg-gray-700 text-gray-300'} px-2 py-1 rounded text-sm w-16 text-center">${p.score} pts</span>
                         </div>
                     </div>`;
@@ -720,9 +775,13 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
             container.innerHTML = '';
             Object.keys(activeGroup.categories).forEach(k => {
                 const cat = activeGroup.categories[k];
+                const style = CATEGORY_STYLES[cat.colorClass] || CATEGORY_STYLES.blue;
                 container.innerHTML += `
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-bold opacity-90">${cat.name}</label>
+                    <label class="text-xs font-bold opacity-95 flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full ${style.modalDot} inline-block"></span>
+                        <span>${cat.name}</span>
+                    </label>
                     <div class="flex gap-2">
                         <input type="number" id="pts-${k}" value="${currentPoints[k]}" class="w-full ${activeGroup.isPink ? 'bg-[#ce7798] text-gray-900 border-[#b66081] font-bold' : 'bg-gray-900 text-white border-gray-600'} border rounded-lg px-3 py-1.5 text-sm focus:outline-none">
                     </div>
@@ -756,7 +815,7 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
                 return;
             }
             document.getElementById('drawModal').classList.remove('hidden');
-            generateTeams(); // Gera automaticamente ao abrir
+            generateTeams();
         };
 
         window.closeDrawModal = () => {
@@ -765,17 +824,15 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
 
         window.generateTeams = () => {
             const numTeams = parseInt(document.getElementById('num-teams').value);
-            const players = [...globalRankedPlayers]; // Já ordenados por pontuação (melhores primeiro)
+            const players = [...globalRankedPlayers];
             
-            // Inicializa os times
             const teams = Array.from({ length: numTeams }, () => []);
 
             // Método Serpentina (Snake Draft) para equilibrar forças
-            // Ex: Time 1, Time 2, Time 3 -> Time 3, Time 2, Time 1...
             let forward = true;
             let teamIndex = 0;
 
-            players.forEach((p, idx) => {
+            players.forEach((p) => {
                 teams[teamIndex].push(p);
                 if (forward) {
                     teamIndex++;
@@ -792,7 +849,6 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
                 }
             });
 
-            // Renderizar resultado
             let html = '';
             teams.forEach((team, tIdx) => {
                 const totalScore = team.reduce((acc, curr) => acc + curr.score, 0);
@@ -800,9 +856,9 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
                 
                 html += `
                 <div class="${teamBg} border rounded-xl p-4 shadow-sm">
-                    <div class="flex justify-between items-center mb-2 border-b pb-1">
-                        <h4 class="font-bold text-base">🟢 Time ${tIdx + 1}</h4>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-black/20">Pontuação Total: ${totalScore} pts</span>
+                    <div class="flex justify-between items-center mb-2 border-b border-black/15 pb-1">
+                        <h4 class="font-bold text-base">🏐 Time ${tIdx + 1}</h4>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-black/15">Pontuação Total: ${totalScore} pts</span>
                     </div>
                     <ul class="flex flex-col gap-1 text-sm">`;
                 
@@ -893,5 +949,3 @@ Substitua todo o conteúdo do seu arquivo por este código atualizado e faça o 
     </script>
 </body>
 </html>
-
-```
