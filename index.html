@@ -15,7 +15,7 @@
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
     </style>
 </head>
-<body id="body-theme" class="bg-gray-900 text-gray-100 min-h-screen font-sans selection:bg-blue-500 selection:text-white transition-colors duration-300">
+<body id="body-theme" class="bg-gray-900 text-gray-100 min-h-screen font-sans transition-colors duration-300">
 
     <!-- Login Screen -->
     <div id="login-screen" class="screen flex flex-col items-center justify-center min-h-screen p-4 fade-in">
@@ -60,9 +60,7 @@
         </section>
 
         <!-- Dynamic Category Pools -->
-        <div id="categories-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Gerado via JS de acordo com o grupo -->
-        </div>
+        <div id="categories-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
         <div class="fixed bottom-0 left-0 right-0 bg-gray-900/90 backdrop-blur border-t border-gray-700 p-4 shadow-lg z-10">
             <div class="max-w-md mx-auto">
@@ -85,9 +83,7 @@
 
         <!-- Configuração de Pontuação -->
         <h2 class="text-lg font-bold text-gray-300 mb-3">Configurar Pontuação por Categoria</h2>
-        <div id="admin-points-config" class="bg-gray-800 rounded-xl border border-gray-700 p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <!-- Preenchido via JS -->
-        </div>
+        <div id="admin-points-config" class="bg-gray-800 rounded-xl border border-gray-700 p-4 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
 
         <h2 class="text-lg font-bold text-gray-300 mb-3">Ranking Final</h2>
         <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden mb-8" id="admin-results">
@@ -163,7 +159,6 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const ADMIN_PASS = "18273645";
 
         // Detecção do Grupo pela URL (?grupo=domingo ou /tema-rosa)
         const urlParams = new URLSearchParams(window.location.search);
@@ -174,10 +169,11 @@
             else grupoParam = 'sextou';
         }
 
-        // Definição dos Grupos
+        // Definição dos Grupos com Senhas Admin Independentes
         const GROUPS = {
             sextou: {
                 name: "Vôlei Sextou",
+                adminPass: "18273645",
                 colUsers: "volleyball_users",
                 colVotes: "volleyball_votes",
                 colConfig: "volleyball_config",
@@ -205,6 +201,7 @@
             },
             domingo: {
                 name: "Domingo na Quadra",
+                adminPass: "87654321",
                 colUsers: "domingo_users",
                 colVotes: "domingo_votes",
                 colConfig: "domingo_config",
@@ -235,6 +232,7 @@
         };
 
         const activeGroup = GROUPS[grupoParam] || GROUPS.sextou;
+        const ADMIN_PASS = activeGroup.adminPass;
         applyThemeAndConfig();
 
         function applyThemeAndConfig() {
@@ -242,7 +240,6 @@
             document.getElementById('login-title').textContent = activeGroup.name;
             document.getElementById('voting-header-title').textContent = `Votação (${activeGroup.name})`;
             
-            // Aplicar Classes de Tema
             const body = document.getElementById('body-theme');
             body.className = `${activeGroup.theme.body} min-h-screen font-sans transition-colors duration-300`;
             
@@ -255,7 +252,6 @@
             document.getElementById('voting-card-bg').className = `${activeGroup.theme.card} rounded-xl p-4 border mb-6`;
             document.getElementById('submitBtn').className = `w-full ${activeGroup.theme.primary} disabled:bg-gray-700 disabled:text-gray-500 text-white font-bold py-3 px-4 rounded-xl transition-colors flex items-center justify-center gap-2`;
 
-            // Construir HTML dinâmico das categorias de votação
             const container = document.getElementById('categories-container');
             container.innerHTML = '';
             
@@ -286,7 +282,6 @@
         let currentUserName = null;
         let playerAssignments = {};
 
-        // Inicialização
         async function initApp() {
             try {
                 const usersRef = collection(db, activeGroup.colUsers);
@@ -309,7 +304,6 @@
         }
         initApp();
 
-        // Login
         async function handleLogin() {
             const pass = document.getElementById('password-input').value;
             if(!pass) return;
@@ -436,7 +430,6 @@
                 if (assigned !== 'available' && localCounts[assigned] !== undefined) localCounts[assigned]++; 
             });
 
-            // Opção para Disponíveis
             if (currentCat !== 'available') {
                 const btn = document.createElement('button');
                 btn.className = "w-full text-left px-4 py-3 rounded-xl border bg-gray-700 border-gray-600 text-white font-medium flex justify-between";
@@ -491,7 +484,6 @@
             }
         }
 
-        // --- PAINEL ADMIN ---
         async function loadAdminData() {
             try {
                 const votesRef = collection(db, activeGroup.colVotes);
@@ -504,14 +496,12 @@
                     getDoc(configRef)
                 ]);
 
-                // Obter pontuações customizadas ou padrão
                 let currentPoints = {};
                 const customPoints = configSnap.exists() ? configSnap.data() : {};
                 Object.keys(activeGroup.categories).forEach(k => {
                     currentPoints[k] = customPoints[k] !== undefined ? customPoints[k] : activeGroup.categories[k].defaultPoints;
                 });
 
-                // Renderizar inputs de configuração de pontos
                 renderPointsConfigUI(currentPoints);
                 
                 let scores = {};
@@ -537,10 +527,8 @@
 
                 document.getElementById('admin-vote-count').textContent = `${totalVotes} pessoas já votaram`;
 
-                // Ranking Dinâmico baseado nas faixas de quantidade exigidas
                 const ranked = Object.keys(scores).map(name => ({ name, score: scores[name] })).sort((a,b) => b.score - a.score);
                 
-                let cumulativeCount = 0;
                 const categoryRanges = [];
                 Object.keys(activeGroup.categories).forEach(k => {
                     const cat = activeGroup.categories[k];
@@ -552,7 +540,6 @@
                     let assignedCatName = "Reserva";
                     let runningSum = 0;
                     let foundColor = "text-gray-400";
-
                     const colorsList = ["text-red-400", "text-yellow-400", "text-blue-400", "text-green-400", "text-purple-400"];
                     let colorIndex = 0;
 
@@ -580,7 +567,6 @@
                 });
                 document.getElementById('admin-results').innerHTML = resultsHtml || '<div class="p-4 text-gray-400">Nenhum participante.</div>';
 
-                // Lista de Gerenciamento
                 currentPlayers.sort((a, b) => a.name.localeCompare(b.name));
                 let manageHtml = '';
                 currentPlayers.forEach(p => {
